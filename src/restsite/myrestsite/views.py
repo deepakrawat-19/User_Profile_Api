@@ -7,7 +7,7 @@ from rest_framework import status
 # Create your views here.
 class HelloApiView(APIView):
     """test apiview"""
-    serializer_class=serializers.HelloSerializer
+    serializer_class=serializers.HelloSerializer #serializer class object 
     def get(self,request,format=None):
         """returns list of api view feature"""
  
@@ -32,3 +32,14 @@ class HelloApiView(APIView):
 
         else:
             return Response(serializer.error,status=status.HTTP_400_BAD_REQUEST) #bad request of http
+
+    def put(self,request,pk=None):
+        """handles updating object"""
+        return Response({'method':'put'})
+
+    def patch(self,request,pk=None):
+        """handles patch request,updating fields provided in the request."""
+        return Response({'method':'patch'})
+    def delete(self,request,pk=None):
+        """delete objects"""
+        return Response({'method':'delete'})
