@@ -1,8 +1,13 @@
 from django.shortcuts import render
+from rest_framework import viewsets
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from . import serializers
 from rest_framework import status
+from . import permission
+from rest_framework.authentication import TokenAuthentication
+from . import models
+from rest_framework import filters
 
 # Create your views here.
 class HelloApiView(APIView):
@@ -43,3 +48,24 @@ class HelloApiView(APIView):
     def delete(self,request,pk=None):
         """delete objects"""
         return Response({'method':'delete'})
+
+class HelloViewSet(viewsets.ViewSet):
+    """test api viewset"""
+    def list(self,request):
+        """hello meessage"""
+        a_viewset=[
+            'uses actions(list,create,update,insert,destroy)',
+            'Automatically maps to urls using routers',
+            'provides more functionality with less code',
+        ]
+        return Response({'message':'hello','a_viewset':a_viewset})
+
+
+class UserProfileViewSet(viewsets.ModelViewSet):
+    """handles creating updating"""
+    serializer_class=serializers.UserProfileSerializer
+    queryset=models.UserProfile.objects.all()
+    authentication_classes=(TokenAuthentication,)
+    permission_classes=(permission.UpdateOwnProfile,)
+    filter_backends=(filters.SearchFilter,)
+    search_fields=('name','email')
