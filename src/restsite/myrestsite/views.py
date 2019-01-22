@@ -4,11 +4,12 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from . import serializers
 from rest_framework import status
-from . import permission
+from . import permissions
 from rest_framework.authentication import TokenAuthentication
 from . import models
 from rest_framework import filters
-
+from rest_framework.authtoken.serializers import AuthTokenSerializer
+from rest_framework.authtoken.views import ObtainAuthToken
 # Create your views here.
 class HelloApiView(APIView):
     """test apiview"""
@@ -66,6 +67,23 @@ class UserProfileViewSet(viewsets.ModelViewSet):
     serializer_class=serializers.UserProfileSerializer
     queryset=models.UserProfile.objects.all()
     authentication_classes=(TokenAuthentication,)
-    permission_classes=(permission.UpdateOwnProfile,)
+    permission_classes=(permissions.UpdateOwnProfile,)
     filter_backends=(filters.SearchFilter,)
-    search_fields=('name','email')
+    search_fields=('name','email',)
+
+class LoginViewSet(viewsets.ViewSet):
+    """checks email and password and validate"""
+    serializer_class=AuthTokenSerializer
+    
+    def create(self,request):
+        """use ObtainAuthToken APIVIEW to obtain and create a token"""
+        return ObtainAuthToken().post(request)
+
+class ProfileFeedItemViewSet(viewsets.ModelViewSet):
+    serializer_class=serializers.ProfileFeedItemSerializer
+    queryset=models.ProfileFeedItem.objects.all()
+    authentication_classes=[TokenAuthentication,]
+
+    def perform_create(self,serializer):
+        """sets the user profile to the logged in user"""
+        serializer.save(user_profile=self.request.user)
